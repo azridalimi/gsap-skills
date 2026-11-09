@@ -1,0 +1,493 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SCSE1013 Meeting</title>
+<link rel="stylesheet" href="node_modules/@fontsource/anton/index.css">
+<link rel="stylesheet" href="node_modules/@fontsource/space-grotesk/400.css">
+<link rel="stylesheet" href="node_modules/@fontsource/space-grotesk/700.css">
+<style>
+:root{
+  --bg:#040405;
+  --g-warm:linear-gradient(180deg,#fff6e6 0%,#ffd08a 38%,#ff7a2f 78%,#e0431f 100%);
+  --g-teal:linear-gradient(180deg,#f0fffc 0%,#7ff5e3 40%,#19c3c9 75%,#0a7fa8 100%);
+  --g-fire:linear-gradient(180deg,#fff1a8 0%,#ffb03a 35%,#ff4b3a 70%,#d1135f 100%);
+  --g-violet:linear-gradient(180deg,#fbf3ff 0%,#d1a8ff 40%,#8b6bff 75%,#4a46e0 100%);
+  --g-gold:linear-gradient(180deg,#fffbe8 0%,#ffe9a3 35%,#f2b84b 70%,#b9781c 100%);
+  --g-mint:linear-gradient(180deg,#f4fff0 0%,#b8ff9a 40%,#3fdc7c 75%,#119a6a 100%);
+  --g-ice:linear-gradient(180deg,#ffffff 0%,#dfe9ff 45%,#9fb4e8 100%);
+  --g-teal-orange:linear-gradient(100deg,#2ee6d6 0%,#c8fff6 30%,#fff3df 50%,#ffb36b 72%,#ff6a2b 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:var(--bg);overflow:hidden}
+body{font-family:"Space Grotesk",sans-serif;color:#fff}
+.emo{font-family:"Noto Color Emoji";line-height:1;display:inline-block}
+#stage{position:absolute;inset:0;overflow:hidden;background:var(--bg)}
+
+/* background */
+.orb{position:absolute;border-radius:50%;filter:blur(140px);opacity:.55;mix-blend-mode:screen}
+#orbA{width:900px;height:900px;left:-300px;top:200px;background:radial-gradient(circle,#0fb5b0 0%,transparent 70%)}
+#orbB{width:1000px;height:1000px;right:-380px;top:900px;background:radial-gradient(circle,#ff6a2b 0%,transparent 70%)}
+#orbC{width:700px;height:700px;left:200px;top:-250px;background:radial-gradient(circle,#6b4bff 0%,transparent 70%);opacity:.35}
+#grid{position:absolute;inset:-200px;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:90px 90px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 45%,#000 20%,transparent 75%)}
+#vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 45%,rgba(0,0,0,.85) 100%);pointer-events:none;z-index:50}
+#grain{position:absolute;inset:-100px;opacity:.09;z-index:51;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:49;mix-blend-mode:overlay}
+#redflash{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(255,40,60,.55),transparent 70%);opacity:0;z-index:2}
+
+/* HUD */
+#hud{position:absolute;left:0;right:0;top:0;height:220px;z-index:40;padding:96px 64px 0}
+#prog{position:absolute;left:0;top:0;height:8px;width:100%;background:var(--g-teal-orange);transform-origin:0 50%;transform:scaleX(0)}
+.pill{display:inline-flex;align-items:center;gap:14px;padding:14px 26px;border-radius:999px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);font-weight:700;font-size:30px;letter-spacing:.12em}
+.pill .dot{width:14px;height:14px;border-radius:50%;background:#ff4b3a;box-shadow:0 0 18px #ff4b3a}
+#tc{position:absolute;right:64px;top:108px;font-size:28px;letter-spacing:.12em;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;font-weight:700}
+
+/* captions */
+#caps{position:absolute;left:70px;right:70px;top:1560px;height:220px;z-index:40}
+.cap{position:absolute;inset:0;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:6px 22px;font-size:46px;font-weight:700;text-align:center;visibility:hidden}
+.cap span{display:inline-block;color:rgba(255,255,255,.28)}
+#bars{position:absolute;left:0;right:0;top:1470px;height:70px;display:flex;justify-content:center;align-items:center;gap:10px;z-index:40}
+#bars i{display:block;width:12px;height:70px;border-radius:6px;background:var(--g-teal-orange);background-size:1080px 100%;transform-origin:50% 50%;opacity:.9}
+
+/* scenes */
+.scene{position:absolute;left:0;right:0;top:250px;height:1200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;visibility:hidden;opacity:0;z-index:10;text-align:center}
+.h{font-family:Anton,sans-serif;text-transform:uppercase;line-height:.95;letter-spacing:.01em;white-space:nowrap}
+.gr{-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.gr-warm,.gr-warm .c{background-image:var(--g-warm)}
+.gr-teal,.gr-teal .c{background-image:var(--g-teal)}
+.gr-fire,.gr-fire .c{background-image:var(--g-fire)}
+.gr-violet,.gr-violet .c{background-image:var(--g-violet)}
+.gr-gold,.gr-gold .c{background-image:var(--g-gold)}
+.gr-mint,.gr-mint .c{background-image:var(--g-mint)}
+.gr-ice,.gr-ice .c{background-image:var(--g-ice)}
+.gr-to{background-image:var(--g-teal-orange);background-size:200% 100%}
+.gr-teal-orange .c{background-image:linear-gradient(180deg,#e8fffb 0%,#2ee6d6 40%,#ffb36b 68%,#ff6a2b 100%);background-size:100% 100%}
+.c{display:inline-block;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;will-change:transform}
+.glow{filter:drop-shadow(0 0 28px rgba(255,140,60,.35))}
+.glowT{filter:drop-shadow(0 0 28px rgba(40,230,210,.35))}
+.sub{font-size:48px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.01em}
+.mono{font-family:"Space Grotesk";font-weight:700;letter-spacing:.2em}
+.chip{padding:16px 34px;border-radius:999px;border:2px solid rgba(255,255,255,.25);font-size:44px;font-weight:700;letter-spacing:.08em;background:rgba(255,255,255,.04)}
+.stamp{font-family:Anton;font-size:150px;padding:6px 40px;border:10px solid #ff4b3a;color:#ff4b3a;border-radius:24px;text-transform:uppercase;transform:rotate(-8deg)}
+.row{display:flex;gap:28px;align-items:center;justify-content:center}
+
+.cal{width:620px;border-radius:48px;overflow:hidden;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.14);box-shadow:0 40px 120px rgba(0,0,0,.6)}
+.cal .top{height:150px;display:flex;align-items:center;justify-content:center;font-family:Anton;font-size:84px;letter-spacing:.06em;color:#120a06}
+.cal .num{font-family:Anton;font-size:400px;line-height:1.05;padding-top:10px}
+.cal .mon{font-family:Anton;font-size:90px;letter-spacing:.2em;padding-bottom:40px;color:rgba(255,255,255,.9)}
+
+.clock{width:460px;height:460px;border-radius:50%;border:6px solid rgba(255,255,255,.2);position:relative;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%)}
+.clock .tick{position:absolute;left:50%;top:50%;width:6px;height:26px;margin:-13px -3px;background:rgba(255,255,255,.5);border-radius:3px}
+.clock .hand{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;border-radius:10px}
+.clock .hh{width:18px;height:130px;margin-left:-9px;background:var(--g-warm)}
+.clock .mh{width:10px;height:185px;margin-left:-5px;background:var(--g-teal)}
+.clock .pin{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px;border-radius:50%;background:#fff}
+
+.chat{width:860px;display:flex;flex-direction:column;gap:22px}
+.bub{align-self:flex-start;max-width:760px;padding:30px 40px;border-radius:44px 44px 44px 10px;background:#1b1d22;font-size:50px;font-weight:700;text-align:left;border:1px solid rgba(255,255,255,.08)}
+.bub.me{align-self:flex-end;border-radius:44px 44px 10px 44px;background:linear-gradient(135deg,#0d6e6a,#0b4f62)}
+.bub small{display:block;text-align:right;font-size:30px;color:rgba(255,255,255,.55);margin-top:10px}
+.ticks{color:rgba(255,255,255,.5);font-weight:700;letter-spacing:-.25em;margin-left:10px}
+
+.list{width:900px;display:flex;flex-direction:column;gap:20px}
+.item{display:flex;align-items:center;gap:28px;padding:22px 34px;border-radius:30px;background:rgba(255,255,255,.045);border:1.5px solid rgba(255,255,255,.1);font-size:50px;font-weight:700;text-align:left}
+.item .emo{font-size:64px}
+.item .ck{margin-left:auto;width:58px;height:58px;border-radius:50%;border:3px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:36px;color:#04110d}
+.item .ck b{position:absolute;opacity:0}
+.cards{display:flex;flex-direction:column;gap:26px;width:880px}
+.card{display:flex;align-items:center;gap:34px;padding:34px 44px;border-radius:36px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1.5px solid rgba(255,255,255,.14);text-align:left}
+.card .emo{font-size:110px}
+.card .h{font-size:110px}
+.strike{position:relative}
+.strike::after{content:"";position:absolute;left:-2%;top:52%;height:12px;width:104%;background:#ff4b3a;border-radius:6px;transform:scaleX(var(--s,0));transform-origin:0 50%}
+.brand{position:absolute;bottom:60px;left:0;right:0;text-align:center;font-size:24px;letter-spacing:.35em;color:rgba(255,255,255,.3);z-index:40;font-weight:700}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="grid"></div>
+  <div class="orb" id="orbA"></div><div class="orb" id="orbB"></div><div class="orb" id="orbC"></div>
+  <div id="redflash"></div>
+  <div id="scenes"></div>
+  <div id="hud">
+    <div id="prog"></div>
+    <div class="pill"><span class="dot"></span>PENGUMUMAN · SCSE1013</div>
+    <div id="tc">00:00</div>
+  </div>
+  <div id="bars"></div>
+  <div id="caps"></div>
+  <div class="brand">MOTION · GSAP SKILLS</div>
+  <div id="flash"></div>
+  <div id="vignette"></div>
+  <div id="grain"></div>
+</div>
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<script src="node_modules/gsap/dist/SplitText.min.js"></script>
+<script>
+gsap.registerPlugin(SplitText);
+const DUR = 86.64, FPS = 30;
+const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out", duration: 0.5 } });
+const $ = (h) => { const d = document.createElement("div"); d.innerHTML = h.trim(); return d.firstElementChild; };
+const scenesEl = document.getElementById("scenes");
+
+/* ---------- helpers ---------- */
+function scene(t0, t1, opts = {}) {
+  const el = $(`<div class="scene"></div>`);
+  if (opts.gap) el.style.gap = opts.gap + "px";
+  scenesEl.appendChild(el);
+  tl.set(el, { autoAlpha: 1 }, t0);
+  tl.fromTo(el, { scale: 1 }, { scale: opts.zoom ?? 1.04, duration: t1 - t0, ease: "none" }, t0);
+  tl.to(el, { autoAlpha: 0, y: -40, filter: "blur(14px)", duration: 0.28, ease: "power2.in" }, t1 - 0.28);
+  return el;
+}
+function add(sc, html) { const e = $(html); sc.appendChild(e); return e; }
+function H(sc, text, grade = "warm", size = 200, extra = "") {
+  return add(sc, `<div class="h gr gr-${grade} ${extra}" style="font-size:${size}px">${text}</div>`);
+}
+function E(sc, ch, size = 220) { return add(sc, `<div class="emo" style="font-size:${size}px">${ch}</div>`); }
+function chars(el) {
+  const s = new SplitText(el, { type: "chars", charsClass: "c" });
+  el.classList.remove("gr"); el.style.backgroundImage = "none";
+  return s.chars;
+}
+// char cascade rise
+function rise(el, t, stagger = 0.03) {
+  const c = chars(el);
+  tl.from(c, { yPercent: 110, rotateX: -80, opacity: 0, duration: 0.55, stagger, ease: "back.out(1.8)", transformOrigin: "50% 100%" }, t);
+  return el;
+}
+function pop(el, t, rot = 0) {
+  tl.from(el, { scale: 0, rotation: rot || gsap.utils.random(-25, 25, 1), opacity: 0, duration: 0.6, ease: "back.out(2.2)" }, t);
+  return el;
+}
+function float(el, t0, t1, amp = 18) {
+  const n = Math.max(1, Math.floor((t1 - t0) / 1.2));
+  tl.to(el, { y: -amp, rotation: 4, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: n * 2 - 1 }, t0 + 0.6);
+  return el;
+}
+function slam(el, t) {
+  tl.from(el, { scale: 2.6, opacity: 0, duration: 0.35, ease: "expo.out" }, t);
+  tl.fromTo("#flash", { opacity: 0.35 }, { opacity: 0, duration: 0.4, ease: "power2.out", immediateRender: false }, t + 0.05);
+  shake(t + 0.05, 14);
+  return el;
+}
+function slideUp(el, t) { tl.from(el, { y: 80, opacity: 0, duration: 0.5 }, t); return el; }
+function shake(t, a = 10) {
+  tl.to("#scenes", { keyframes: { x: [0, -a, a, -a * .6, a * .6, 0], y: [0, a * .5, -a * .5, a * .3, 0] }, duration: 0.35, ease: "none" }, t);
+}
+function shimmer(el, t0, t1) {
+  tl.fromTo(el, { backgroundPosition: "0% 50%" }, { backgroundPosition: "100% 50%", duration: t1 - t0, ease: "none" }, t0);
+}
+
+let SPEC = [], NB, ORDER, barEls;
+function build(){
+/* ---------- background ambience ---------- */
+tl.to("#prog", { scaleX: 1, duration: DUR, ease: "none" }, 0);
+tl.to("#orbA", { x: 420, y: 520, duration: 11, ease: "sine.inOut", yoyo: true, repeat: 7 }, 0);
+tl.to("#orbB", { x: -480, y: -620, duration: 13, ease: "sine.inOut", yoyo: true, repeat: 6 }, 0);
+tl.to("#orbC", { x: 260, y: 300, scale: 1.3, duration: 9, ease: "sine.inOut", yoyo: true, repeat: 9 }, 0);
+tl.to("#grid", { y: 90, duration: 6, ease: "none", repeat: 14 }, 0);
+tl.to(".pill .dot", { opacity: 0.2, duration: 0.5, ease: "steps(1)", yoyo: true, repeat: 172 }, 0);
+
+/* ---------- scenes ---------- */
+// S1 Perhatian semua
+{ const s = scene(0, 2.95);
+  float(pop(E(s, "📢", 260), 0.0, -20), 0, 2.9);
+  rise(H(s, "PERHATIAN", "warm", 230, "glow"), 0.05);
+  rise(H(s, "SEMUA!", "teal", 260, "glowT"), 0.46);
+  slideUp(add(s, `<div class="sub">dengar sampai habis <span class="emo">👂</span></div>`), 1.32);
+}
+// S2 Tak nak ulang
+{ const s = scene(2.95, 5.35);
+  pop(E(s, "🙅", 220), 3.0);
+  rise(H(s, "AKU TAK NAK", "ice", 150), 3.06);
+  rise(H(s, "ULANG", "fire", 280, "glow"), 3.74);
+  const st = add(s, `<div class="stamp" style="font-size:96px">BANYAK KALI</div>`);
+  tl.from(st, { scale: 3, opacity: 0, rotation: -30, duration: 0.3, ease: "expo.out" }, 3.9);
+  shake(4.0, 10);
+}
+// S3 Meeting Assignment 1 SCSE1013
+{ const s = scene(5.35, 9.15);
+  pop(E(s, "🤝", 200), 5.4);
+  rise(H(s, "MEETING", "teal-orange gr-to", 260, "gr"), 5.46);
+  slideUp(add(s, `<div class="chip">ASSIGNMENT 1</div>`), 5.96);
+  const code = H(s, "SCSE1013", "gold", 190, "glow");
+  rise(code, 6.76, 0.07);
+}
+// S4 Khamis 12 November
+{ const s = scene(9.15, 12.5);
+  const cal = add(s, `<div class="cal"><div class="top" style="background:var(--g-warm)">KHAMIS</div><div class="num h gr-ice">12</div><div class="mon">NOVEMBER</div></div>`);
+  tl.from(cal, { y: 300, rotationX: 60, opacity: 0, duration: 0.8, ease: "back.out(1.4)", transformPerspective: 1200 }, 9.2);
+  tl.from(cal.querySelector(".top"), { scaleY: 0, transformOrigin: "50% 0%", duration: 0.4 }, 10.3);
+  tl.from(cal.querySelector(".num"), { scale: 0.2, opacity: 0, duration: 0.5, ease: "back.out(2)" }, 10.84);
+  tl.from(cal.querySelector(".mon"), { letterSpacing: "0.8em", opacity: 0, duration: 0.6 }, 11.48);
+  const em = add(s, `<div class="emo" style="font-size:130px;position:absolute;right:120px;top:120px">🗓️</div>`);
+  pop(em, 9.6);
+}
+// S5 Pukul 9 malam. Tepat.
+{ const s = scene(12.5, 16.35);
+  const ck = add(s, `<div class="clock" style="transform:scale(.85);margin-bottom:-60px;margin-top:-140px">${Array.from({length:12},(_,i)=>`<div class="tick" style="transform:rotate(${i*30}deg) translateY(-200px)"></div>`).join("")}<div class="hand hh"></div><div class="hand mh"></div><div class="pin"></div></div>`);
+  tl.from(ck, { scale: 0.4, opacity: 0, duration: 0.6, ease: "back.out(1.6)" }, 12.55);
+  tl.fromTo(ck.querySelector(".hh"), { rotation: 120 }, { rotation: 270, duration: 0.9, ease: "power4.out" }, 12.7);
+  tl.fromTo(ck.querySelector(".mh"), { rotation: -900 }, { rotation: 0, duration: 0.9, ease: "power4.out" }, 12.7);
+  const r = add(s, `<div class="row"></div>`);
+  const big = add(r, `<div class="h gr gr-warm glow" style="font-size:230px">9:00</div>`);
+  rise(big, 13.16, 0.05);
+  const m = add(r, `<div style="text-align:left"><div class="h gr gr-violet" style="font-size:130px">MALAM</div><span class="emo" style="font-size:100px">🌙</span></div>`);
+  tl.from(m, { x: 120, opacity: 0, duration: 0.5 }, 13.48);
+  const st = add(s, `<div class="stamp" style="position:absolute;bottom:20px;font-size:120px">TEPAT ⏰</div>`);
+  tl.from(st, { scale: 3, opacity: 0, rotation: 20, duration: 0.3, ease: "expo.out" }, 15.12);
+  shake(15.2, 16);
+}
+// S6 Jangan buat-buat tak nampak
+{ const s = scene(16.35, 18.75);
+  const eye = pop(E(s, "👀", 240), 16.4);
+  tl.to(eye, { x: 60, duration: 0.25, yoyo: true, repeat: 5, ease: "power1.inOut" }, 16.9);
+  rise(H(s, "JANGAN", "fire", 180), 16.48);
+  rise(H(s, "BUAT-BUAT", "ice", 150), 17.12);
+  rise(H(s, "TAK NAMPAK", "warm", 180, "glow"), 17.42);
+  slideUp(add(s, `<div class="sub">mesej ni. <span class="emo">📩</span></div>`), 17.78);
+}
+// S7 Bluetick tapi senyap
+{ const s = scene(18.75, 23.45, { gap: 40 });
+  const chat = add(s, `<div class="chat">
+    <div class="bub me">📌 Meeting Khamis, 9 malam. Semua datang.<small>9:41 PM <span class="ticks">✓✓</span></small></div>
+  </div>`);
+  tl.from(chat.firstElementChild, { y: 120, scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.6)" }, 18.85);
+  tl.to(chat.querySelector(".ticks"), { color: "#38b6ff", textShadow: "0 0 18px #38b6ff", duration: 0.2 }, 19.14);
+  tl.from(chat.querySelector(".ticks"), { scale: 2.5, duration: 0.4, ease: "back.out(3)" }, 19.14);
+  const r = add(s, `<div class="row"><div class="h gr gr-ice" style="font-size:150px">BLUETICK</div><div class="emo" style="font-size:120px">✔️</div></div>`);
+  slideUp(r, 19.14);
+  const r2 = add(s, `<div class="row"><div class="h gr gr-violet" style="font-size:150px">TAPI SENYAP</div><div class="emo" style="font-size:120px">🤫</div></div>`);
+  slideUp(r2, 19.88);
+  const r3 = add(s, `<div class="row"><div class="h gr gr-mint glow" style="font-size:120px">= KORANG DATANG</div><div class="emo" style="font-size:110px">✅</div></div>`);
+  slam(r3, 21.42);
+}
+// S8 Bukan assignment main-main
+{ const s = scene(23.45, 26.15);
+  const w = pop(E(s, "⚠️", 230), 23.5);
+  tl.to(w, { scale: 1.15, duration: 0.2, yoyo: true, repeat: 7, ease: "sine.inOut" }, 24.1);
+  rise(H(s, "INI BUKAN", "ice", 160), 23.6);
+  rise(H(s, "ASSIGNMENT", "warm", 175), 24.36);
+  const mm = H(s, "MAIN-MAIN.", "fire", 175, "glow");
+  slam(mm, 24.86);
+  tl.to(mm, { skewX: 12, x: 18, duration: 0.05, yoyo: true, repeat: 7, ease: "none" }, 25.2);
+}
+// S9 Program C++ Campus Print Shop
+{ const s = scene(26.15, 29.75);
+  const r = add(s, `<div class="row"><div class="emo" style="font-size:180px">💻</div><div class="h gr gr-teal glowT" style="font-size:150px">PROGRAM</div></div>`);
+  slideUp(r, 26.28);
+  const cpp = H(s, "C++", "teal-orange gr-to", 380, "gr");
+  pop(cpp, 27.38, -10);
+  shimmer(cpp, 27.4, 29.7);
+  const cps = add(s, `<div class="row"><div class="emo" style="font-size:150px">🖨️</div><div class="h gr gr-warm glow" style="font-size:120px;text-align:left">CAMPUS<br>PRINT SHOP</div></div>`);
+  tl.from(cps, { x: -300, opacity: 0, duration: 0.6, ease: "expo.out" }, 27.96);
+}
+// S10 Feature checklist
+{ const s = scene(29.75, 40.85, { gap: 34, zoom: 1.0 });
+  const hd = add(s, `<div class="h gr gr-gold" style="font-size:92px">APA PROGRAM KENA BUAT</div>`);
+  rise(hd, 29.8, 0.015);
+  const L = add(s, `<div class="list"></div>`);
+  const items = [
+    ["🧾","Kira bil",29.82],
+    ["📄","Rekod pages, copies & mode",30.92],
+    ["📊","Rate tiers",33.88],
+    ["🎨","Colour surcharge",34.96],
+    ["🔢","Rounding",35.86],
+    ["💰","Minimum charge RM1",37.06],
+    ["🛡️","Input checking",39.40],
+  ];
+  items.forEach(([e, txt, t]) => {
+    const it = add(L, `<div class="item"><span class="emo">${e}</span><span>${txt}</span><span class="ck">✓</span></div>`);
+    tl.from(it, { x: 600, opacity: 0, duration: 0.55, ease: "expo.out" }, t);
+    tl.to(it.querySelector(".ck"), { background: "linear-gradient(180deg,#b8ff9a,#3fdc7c)", borderColor: "#3fdc7c", duration: 0.2 }, t + 0.45);
+    tl.from(it.querySelector(".ck"), { scale: 0.3, rotation: -90, duration: 0.5, ease: "back.out(3)" }, t + 0.45);
+    tl.to(it, { borderColor: "rgba(255,179,107,.6)", background: "rgba(255,138,61,.09)", duration: 0.2, yoyo: true, repeat: 1 }, t);
+  });
+}
+// S11 Banyak benda / bukan siap satu malam / dengar sini
+{ const s = scene(40.85, 42.0);
+  pop(E(s, "🤯", 260), 40.9);
+  slam(H(s, "BANYAK BENDA.", "fire", 190, "glow"), 40.94);
+}
+{ const s = scene(42.0, 43.9);
+  pop(E(s, "🌙", 220), 42.05);
+  rise(H(s, "BUKAN SIAP", "ice", 190), 42.08);
+  rise(H(s, "SATU MALAM", "violet", 210), 42.72);
+}
+{ const s = scene(43.9, 45.95, { zoom: 1.12 });
+  pop(E(s, "👂", 240), 43.96);
+  rise(H(s, "DAN DENGAR", "warm", 200), 43.96);
+  slam(H(s, "SINI.", "teal", 320, "glowT"), 45.04);
+}
+// S12 Jumaat 13 November
+{ const s = scene(45.95, 49.95);
+  const cal = add(s, `<div class="cal"><div class="top" style="background:var(--g-teal)">JUMAAT</div><div class="num h gr-ice">13</div><div class="mon">NOVEMBER</div></div>`);
+  tl.from(cal, { y: 300, rotationX: 60, opacity: 0, duration: 0.8, ease: "back.out(1.4)", transformPerspective: 1200 }, 46.0);
+  tl.from(cal.querySelector(".top"), { scaleY: 0, transformOrigin: "50% 0%", duration: 0.4 }, 46.6);
+  tl.from(cal.querySelector(".num"), { scale: 0.2, opacity: 0, duration: 0.5, ease: "back.out(2)" }, 47.04);
+  tl.from(cal.querySelector(".mon"), { letterSpacing: "0.8em", opacity: 0, duration: 0.6 }, 47.86);
+  const ch = add(s, `<div class="chip" style="border-color:#5ef2dc;color:#7ff5e3">+1 HARI LEPAS MEETING <span class="emo">⏭️</span></div>`);
+  slideUp(ch, 48.96);
+}
+// S13 Tunjuk IPO / Pseudocode / Flowchart kat lecturer
+{ const s = scene(49.95, 56.6, { gap: 30, zoom: 1.0 });
+  rise(H(s, "KENA TUNJUK", "warm", 150, "glow"), 50.0);
+  const C = add(s, `<div class="cards"></div>`);
+  [["📋","IPO TABLE","teal",51.16],["✍️","PSEUDOCODE","gold",52.96],["🔀","FLOWCHART","violet",54.02]].forEach(([e,t,g,ti],i)=>{
+    const c = add(C, `<div class="card"><span class="emo">${e}</span><span class="h gr gr-${g}">${t}</span></div>`);
+    tl.from(c, { rotationY: -90, opacity: 0, x: -100, duration: 0.7, ease: "back.out(1.4)", transformPerspective: 1400, transformOrigin: "0% 50%" }, ti);
+  });
+  const r = add(s, `<div class="row"><div class="sub" style="font-size:64px">kat lecturer</div><div class="emo" style="font-size:110px">👨‍🏫</div></div>`);
+  slideUp(r, 54.72);
+}
+// S14 Datang dengan draft
+{ const s = scene(56.6, 60.75);
+  rise(H(s, "DATANG MEETING", "ice", 128), 56.72);
+  rise(H(s, "DENGAN", "ice", 110), 58.1);
+  const r = add(s, `<div class="row"><div class="h gr gr-mint glow" style="font-size:300px">DRAFT</div><div class="emo" style="font-size:200px">📝</div></div>`);
+  slam(r, 58.38);
+  const nk = add(s, `<div class="row"><div class="h gr gr-fire strike" style="font-size:110px">TANGAN KOSONG</div><div class="emo" style="font-size:100px">🙌</div></div>`);
+  slideUp(nk, 59.22);
+  tl.to(nk.querySelector(".strike"), { "--s": 1, duration: 0.4, ease: "power2.inOut" }, 59.9);
+}
+// S15 Lepas tu tanya "Eh kena buat apa eh?"
+{ const s = scene(60.75, 64.6, { gap: 40 });
+  rise(H(s, "LEPAS TU TANYA...", "violet", 120), 60.84);
+  const chat = add(s, `<div class="chat"><div class="bub">Eh, kena buat apa eh? <span class="emo">🤔</span><small>Khamis, 9:15 PM</small></div></div>`);
+  tl.from(chat.firstElementChild, { y: 100, scale: 0.6, opacity: 0, transformOrigin: "0% 100%", duration: 0.5, ease: "back.out(1.8)" }, 62.18);
+  const fp = add(s, `<div class="emo" style="font-size:300px">🤦</div>`);
+  pop(fp, 63.5);
+}
+// S16 Due final Ahad 22 Nov
+{ const s = scene(64.6, 68.7, { gap: 10 });
+  tl.fromTo("#redflash", { opacity: 0 }, { opacity: 1, duration: 0.25, yoyo: true, repeat: 7, ease: "sine.inOut", immediateRender: false }, 64.7);
+  const r = add(s, `<div class="row"><div class="emo" style="font-size:110px">🚨</div><div class="h gr gr-fire glow" style="font-size:160px">DUE FINAL</div><div class="emo" style="font-size:110px">🚨</div></div>`);
+  slam(r, 64.72);
+  rise(H(s, "AHAD", "ice", 160), 66.36);
+  const n = H(s, "22 NOV", "warm", 290, "glow");
+  slam(n, 66.92);
+}
+// S17 Jangan last minute / panik 3 pagi
+{ const s = scene(68.7, 72.15);
+  const hg = pop(E(s, "⏳", 200), 68.75);
+  tl.to(hg, { rotation: 180, duration: 0.6, ease: "power3.inOut" }, 69.4);
+  rise(H(s, "JANGAN", "ice", 150), 68.78);
+  rise(H(s, "LAST MINUTE", "fire", 175, "glow"), 69.04);
+  const r = add(s, `<div class="row" style="margin-top:30px"><div class="emo" style="font-size:150px">😱</div><div class="sub" style="text-align:left;font-size:54px">panik dalam group<br><span class="h gr gr-violet" style="font-size:120px">3:00 PAGI</span></div></div>`);
+  tl.from(r, { y: 100, opacity: 0, duration: 0.5 }, 70.02);
+  shake(71.2, 12);
+}
+// S18 Aku dah warning awal
+{ const s = scene(72.15, 74.15);
+  pop(E(s, "☝️", 220), 72.2);
+  rise(H(s, "AKU DAH", "ice", 150), 72.26);
+  slam(H(s, "WARNING", "fire", 260, "glow"), 72.78);
+  rise(H(s, "AWAL.", "gold", 180), 73.02);
+}
+// S19 Tak dapat datang? Bagitahu sekarang
+{ const s = scene(74.15, 79.85, { gap: 26 });
+  rise(H(s, "TAK DAPAT DATANG?", "ice", 112), 74.24);
+  const r = add(s, `<div class="row"><div class="emo" style="font-size:180px">📲</div><div class="h gr gr-teal glowT" style="font-size:150px;text-align:left">BAGITAHU<br>SEKARANG</div></div>`);
+  slam(r, 75.9);
+  const no = add(s, `<div class="row" style="margin-top:40px"><div class="emo" style="font-size:110px">⏱️</div><div class="sub strike" style="font-size:46px">bukan 5 minit sebelum meeting</div></div>`);
+  slideUp(no, 78.06);
+  tl.to(no.querySelector(".strike"), { "--s": 1, duration: 0.5, ease: "power2.inOut" }, 79.0);
+}
+// S20 Tak reply = datang
+{ const s = scene(79.85, 82.7, { gap: 10 });
+  const r = add(s, `<div class="row"><div class="h gr gr-ice" style="font-size:170px">TAK REPLY</div><div class="emo" style="font-size:130px">🙊</div></div>`);
+  slideUp(r, 79.94);
+  pop(H(s, "=", "gold", 200), 81.2, 0.001);
+  const d = add(s, `<div class="row"><div class="h gr gr-mint glow" style="font-size:230px">DATANG</div><div class="emo" style="font-size:160px">✅</div></div>`);
+  slam(d, 81.52);
+}
+// S21 Sekian, jumpa Khamis. Jangan lambat.
+{ const s = scene(82.7, DUR + 1, { gap: 14 });
+  const wave = pop(E(s, "👋", 200), 82.8);
+  tl.to(wave, { rotation: 22, duration: 0.25, yoyo: true, repeat: 7, transformOrigin: "70% 90%", ease: "sine.inOut" }, 83.3);
+  rise(H(s, "SEKIAN,", "ice", 150), 82.8);
+  rise(H(s, "JUMPA KHAMIS", "teal-orange gr-to", 150, "gr"), 83.96);
+  const l = add(s, `<div class="row" style="margin-top:30px"><div class="h gr gr-fire glow" style="font-size:112px">JANGAN LAMBAT!</div><div class="emo" style="font-size:100px">🏃</div></div>`);
+  slam(l, 85.4);
+}
+
+/* ---------- captions (karaoke) ---------- */
+const CAPS = [
+ [0,2.9,"Perhatian@0.00 semua,@0.46 dengar@1.32 sampai@1.96 habis.@2.16"],
+ [3.0,5.3,"Aku@3.06 tak@3.50 nak@3.64 ulang@3.74 banyak@3.90 kali.@4.06"],
+ [5.4,9.15,"Meeting@5.46 Assignment@5.96 1@6.34 SCSE1013@6.76"],
+ [9.15,12.5,"Hari@9.20 Khamis,@10.30 12@10.84 November.@11.48"],
+ [12.5,16.35,"Pukul@12.60 9@13.16 malam.@13.48 Tepat.@15.12"],
+ [16.35,18.75,"Jangan@16.48 buat-buat@17.12 tak@17.42 nampak@17.54 mesej@17.78 ni.@18.06"],
+ [18.75,23.45,"Dah@18.88 bluetick,@19.14 tapi@19.88 senyap,@20.38 aku@21.42 anggap@21.78 korang@21.98 datang.@22.16"],
+ [23.45,26.15,"Ini@23.60 bukan@23.94 assignment@24.36 main-main.@24.86"],
+ [26.15,29.75,"Kita@26.28 kena@26.62 buat@26.78 program@26.96 C++@27.38 Campus@27.96 Print@29.14 Shop.@29.54"],
+ [29.75,32.95,"Kira@29.82 bil,@30.30 rekod@30.92 pages,@31.12 copies@31.56 dan@32.48 mode.@32.66"],
+ [32.95,37.0,"Ada@32.98 rate@33.88 tiers,@34.22 colour@34.96 surcharge,@35.22 rounding.@35.86"],
+ [37.0,40.85,"Minimum@37.06 charge@37.92 RM1,@38.12 dan@38.70 input@39.40 checking.@39.68"],
+ [40.85,43.9,"Banyak@40.94 benda.@41.38 Bukan@42.08 siap@42.72 satu@42.98 malam.@43.16"],
+ [43.9,45.95,"Dan@43.96 dengar@44.66 sini.@45.04"],
+ [45.95,49.95,"Hari@46.04 Jumaat,@46.60 13@47.04 November.@47.86 Sehari@48.96 lepas@49.54 meeting,@49.74"],
+ [49.95,56.6,"kena@50.00 tunjuk@50.94 IPO@51.16 Table,@51.62 Pseudocode@52.96 dan@53.48 Flowchart@54.02 kat@54.72 lecturer.@55.02"],
+ [56.6,60.75,"Maksudnya,@56.72 datang@57.28 meeting@57.84 dengan@58.10 draft.@58.38 Bukan@59.22 datang@59.54 tangan@59.74 kosong.@59.98"],
+ [60.75,64.6,"Lepas@60.84 tu@61.10 tanya,@61.22 “Eh,@62.18 kena@62.90 buat@63.14 apa@63.26 eh?”@63.40"],
+ [64.6,68.7,"Due@64.72 final:@64.98 Ahad,@66.36 22@66.92 November.@67.48"],
+ [68.7,72.15,"Jangan@68.78 last@69.04 minute,@69.16 lepas@70.02 tu@70.24 panik@70.36 dalam@70.60 group@70.80 pukul@70.98 3@71.12 pagi.@71.28"],
+ [72.15,74.15,"Aku@72.26 dah@72.66 warning@72.78 awal.@73.02"],
+ [74.15,79.85,"Yang@74.24 tak@74.64 dapat@74.76 datang,@74.90 bagitahu@75.90 sekarang.@76.40 Bukan@78.06 5@78.30 minit@78.52 sebelum@78.74 meeting.@78.92"],
+ [79.85,82.7,"Tak@79.94 reply,@80.20 maknanya@81.20 datang.@81.52"],
+ [82.7,DUR,"Sekian,@82.80 jumpa@83.96 Khamis.@84.24 Jangan@85.40 lambat.@85.80"],
+];
+const capsEl = document.getElementById("caps");
+CAPS.forEach(([t0, t1, str]) => {
+  const words = str.split(" ").map(w => { const i = w.lastIndexOf("@"); return [w.slice(0, i), +w.slice(i + 1)]; });
+  const c = $(`<div class="cap">${words.map(([w]) => `<span>${w}</span>`).join("")}</div>`);
+  capsEl.appendChild(c);
+  tl.set(c, { visibility: "visible" }, t0);
+  tl.from(c, { y: 30, opacity: 0, duration: 0.25 }, t0);
+  tl.set(c, { visibility: "hidden" }, t1);
+  [...c.children].forEach((sp, i) => {
+    const ws = words[i][1];
+    tl.to(sp, { color: "#ffb36b", scale: 1.06, textShadow: "0 0 22px rgba(255,140,60,.8)", duration: 0.08, ease: "none" }, ws);
+    tl.to(sp, { color: "#ffffff", scale: 1, textShadow: "0 0 0 rgba(0,0,0,0)", duration: 0.2, ease: "power1.out" }, ws + 0.28);
+  });
+});
+
+/* ---------- audio-reactive bars (precomputed spectrum) ---------- */
+const barsEl = document.getElementById("bars");
+NB = 20; ORDER = [];
+for (let i = NB - 1; i >= 0; i -= 2) ORDER.push(i);
+for (let i = 0; i < NB; i += 2) ORDER.push(i);
+barEls = ORDER.map((b, k) => { const i = document.createElement("i"); i.style.backgroundPosition = `${-k * 22}px 0`; barsEl.appendChild(i); return i; });
+
+
+}
+const tcEl = document.getElementById("tc"), grainEl = document.getElementById("grain");
+window.seek = (t) => {
+  tl.time(t, false);
+  const f = Math.min(SPEC.length - 1, Math.round(t * FPS));
+  const row = SPEC[f] || [];
+  barEls.forEach((el, k) => { const v = row[ORDER[k]] || 0; el.style.transform = `scaleY(${0.12 + v * 0.88})`; });
+  const s = Math.floor(t); tcEl.textContent = `00:${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const r = (f * 7919) % 97; grainEl.style.transform = `translate(${(r % 10) * 9 - 45}px,${Math.floor(r / 10) * 9 - 45}px)`;
+};
+window.ready = (async () => {
+  SPEC = await (await fetch("spec.json")).json();
+  const allText = [...document.scripts].map(x=>x.textContent).join("");
+  await Promise.all([
+    document.fonts.load('400 100px "Noto Color Emoji"', allText),
+    document.fonts.load('400 100px Anton', allText),
+    document.fonts.load('700 50px "Space Grotesk"', allText),
+    document.fonts.load('400 50px "Space Grotesk"', allText),
+  ]);
+  await document.fonts.ready;
+  build();
+  window.seek(0);
+  return tl.duration();
+})();
+</script>
+</body>
+</html>
